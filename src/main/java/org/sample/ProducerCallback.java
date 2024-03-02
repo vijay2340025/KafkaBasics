@@ -1,9 +1,7 @@
 package org.sample;
 
-import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,18 +38,13 @@ public class ProducerCallback {
     private static void sendData(KafkaProducer<String, String> producer, String topic) {
         IntStream.range(1, 10)
                 .forEach(i -> {
-                    producer.send(new ProducerRecord<>(topic, "data_" + i), new Callback() {
-                        @Override
-                        public void onCompletion(RecordMetadata recordMetadata, Exception e) {
-                            log.info(
-                                    "metadata received \n" +
-                                            "topic: " + recordMetadata.topic() + "\n" +
-                                            "offset: " + recordMetadata.offset() + "\n" +
-                                            "partition: " + recordMetadata.partition() + "\n" +
-                                            "timestamp: " + recordMetadata.timestamp() + "\n"
-                            );
-                        }
-                    });
+                    producer.send(new ProducerRecord<>(topic, "data_" + i), (recordMetadata, e) -> log.info(
+                            "metadata received \n" +
+                                    "topic: " + recordMetadata.topic() + "\n" +
+                                    "offset: " + recordMetadata.offset() + "\n" +
+                                    "partition: " + recordMetadata.partition() + "\n" +
+                                    "timestamp: " + recordMetadata.timestamp() + "\n"
+                    ));
                 });
     }
 }
